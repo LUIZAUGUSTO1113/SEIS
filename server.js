@@ -2,6 +2,8 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 
+const gameLogic = require('./game-logic');
+
 const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer);
@@ -29,26 +31,35 @@ io.on('connection', (socket) => {
             player1.join(roomId);
             player2.join(roomId);
 
+            const { hand1, hand2, vira, manilhaRank } = gameLogic.startNewHand();
+
             const gameState = {
                 roomId: roomId,
                 players: [
-                    { id: player1.id, hand: []},
-                    { id: player2.id, hand: []}
+                    { id: player1.id, hand: hand1},
+                    { id: player2.id, hand: hand2}
                 ],
-                score: [0, 0]
+                score: [0, 0],
+                vira: vira,
+                manilhaRank: manilhaRank,
+                turn: player1
             };
             gameRooms.set(roomId, gameState);
 
             player1.emit('GAME_STARTED', {
                 roomId: roomId,
                 myId: player1.id,
-                opponentId: player2.id
+                opponentId: player2.id,
+                hand: hand1,
+                vira: vira
             });
 
             player2.emit('GAME_STARTED', {
                 roomId: roomId,
                 myId: player2.id,
-                opponentId: player1.id
+                opponentId: player1.id,
+                hand: hand2,
+                vira: vira
             });
         } else {
             console.log(`Jogador ${socket.id} está aguardando na fila.`);

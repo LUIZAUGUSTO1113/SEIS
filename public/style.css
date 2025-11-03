@@ -63,6 +63,11 @@ h1 {
   color: #28a745;
 }
 
+.game-info {
+  color: #0056b3;
+  font-weight: bold;
+}
+
 .error {
   font-weight: bold;
   color: #dc3545;
