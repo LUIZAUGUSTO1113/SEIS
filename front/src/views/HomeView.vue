@@ -6,13 +6,13 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
+const router = useRouter();
 
 const goToGame = () => {
-    router.push('/game')
-}
+    router.push('/game');
+};
 </script>
 
 <style scoped>
