@@ -1,16 +1,29 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Truco SO</title>
-  <link rel="stylesheet" href="style.css">
-</head>
 <body>
-  <h1>Truco SO - Lógica de Sala</h1>
+  <h1>Truco SO - Lógica 3</h1>
   
   <button id="find-game-btn">Encontrar Partida</button>
 
+  <div id="game-area" class="hidden">
+    <div id="opponent-area">
+      <h3>Oponente</h3>
+      <div id="opponent-hand">
+        </div>
+    </div>
+
+    <div id="table-area">
+      <h3>Mesa</h3>
+      <div id="table-cards">
+        </div>
+    </div>
+
+    <div id="player-area">
+      <h3>Sua Mão</h3>
+      <div id="player-hand">
+        </div>
+    </div>
+  </div>
   <div id="game-status">
     <h2>Status:</h2>
     <ul id="messages-list">

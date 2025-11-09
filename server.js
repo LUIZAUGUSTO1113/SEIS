@@ -42,7 +42,10 @@ io.on('connection', (socket) => {
                 score: [0, 0],
                 vira: vira,
                 manilhaRank: manilhaRank,
-                turn: player1
+                turn: player1.id,
+                currentHand: 1,
+                currentRoundCards: [],
+                roundWinners: []
             };
             gameRooms.set(roomId, gameState);
 
@@ -51,7 +54,8 @@ io.on('connection', (socket) => {
                 myId: player1.id,
                 opponentId: player2.id,
                 hand: hand1,
-                vira: vira
+                vira: vira,
+                turn: gameState.turn
             });
 
             player2.emit('GAME_STARTED', {
@@ -59,13 +63,50 @@ io.on('connection', (socket) => {
                 myId: player2.id,
                 opponentId: player1.id,
                 hand: hand2,
-                vira: vira
+                vira: vira,
+                turn: gameState.turn
             });
         } else {
             console.log(`Jogador ${socket.id} está aguardando na fila.`);
             waitingPlayer = socket;
             socket.emit('WAITING_FOR_OPPONENT');
         }
+    });
+
+    socket.on('PLAY_CARD', (data) => {
+        const { roomId, card } = data;
+        const gameState = gameRooms.get(roomId);
+
+        if (!gameState) return;
+
+        if (gameState.turn !== socket.id) {
+            socket.emit('INVALID_MOVE', { message: 'Não é sua vez de jogar! '});
+            return;
+        }
+
+        const playerState = gameState.players.find(p => p.id === socket.id);
+        const cardIndex = playerState.hand.findIndex(c => c.rank === card.rank && c.suit === card.suit);
+
+        if (cardIndex === -1) {
+            socket.emit('INVALID_MOVE', { message: 'Você não tem essa carta!' });
+            return;
+        }
+
+        const playedCard = playerState.hand.splice(cardIndex, 1)[0];
+
+        gameState.currentRoundCards.push({
+            playerId: socket.id,
+            card: playedCard
+        });
+
+        const opponent = gameState.players.find(p => p.id !== socket.id);
+        gameState.turn = opponent.id;
+
+        io.to(roomId).emit('CARD_PLAYED_UPDATE', {
+            playerId: socket.id,
+            card: playedCard,
+            nextTurn: gameState.turn
+        });
     });
 
     socket.on('disconnect', () => {

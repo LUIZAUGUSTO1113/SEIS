@@ -2,6 +2,26 @@ const SUITS = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', 'Q', 'J', 'K'];
 const RANK_ORDER_FOR_MANILHA = ['4', '5', '6', '7', 'Q', 'J', 'K', 'A', '2', '3'];
 
+const RANKS_STRENGTH = {
+  '3': 10,
+  '2': 9,
+  'A': 8,
+  'K': 7,
+  'J': 6,
+  'Q': 5,
+  '7': 4,
+  '6': 3,
+  '5': 2,
+  '4': 1
+};
+
+const SUITS_STRENGTH = {
+  'Clubs': 4,
+  'Hearts': 3,
+  'Spades': 2,
+  'Diamonds': 1
+};
+
 function createDeck() {
     const deck = [];
     for (const suit of SUITS) {
@@ -13,13 +33,13 @@ function createDeck() {
 }
 
 function shuffleDeck(deck) {
-    const shuffleDeck = [...deck];
+    const shuffledDeck = [...deck];
 
-    for (let i = shuffleDeck.length - 1; i > 0; i--) {
+    for (let i = shuffledDeck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [shuffleDeck[i], shuffleDeck[j]] = [shuffleDeck[j], shuffleDeck[i]];
+        [shuffledDeck[i], shuffledDeck[j]] = [shuffledDeck[j], shuffledDeck[i]];
     }
-    return shuffleDeck;
+    return shuffledDeck;
 }
 
 function startNewHand() {
@@ -41,6 +61,14 @@ function startNewHand() {
     };
 }
 
+function getCardStrength(card, manilhaRank) {
+    if (card.rank === manilhaRank) {
+        return 100 + SUITS_STRENGTH[card.suit];
+    }
+    return RANKS_STRENGTH[card.rank];
+}
+
 module.exports = {
-    startNewHand
+    startNewHand,
+    getCardStrength
 };

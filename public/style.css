@@ -72,3 +72,38 @@ h1 {
   font-weight: bold;
   color: #dc3545;
 }
+
+.hidden {
+  display: none;
+}
+
+#game-area {
+  width: 90%;
+  max-width: 600px;
+  border: 2px solid #333;
+  padding: 10px;
+  background: #f9f9f9;
+}
+
+#player-hand .card-btn {
+  padding: 20px 15px;
+  margin: 5px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: 2px solid blue;
+  background: white;
+}
+
+#player-hand .card-btn:disabled {
+  border-color: #aaa;
+  background: #eee;
+  cursor: not-allowed;
+}
+
+#table-cards .played-card {
+  padding: 15px 10px;
+  margin: 5px;
+  background: #ddd;
+  border: 1px solid #999;
+}
