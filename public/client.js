@@ -91,16 +91,76 @@ socket.on('CARD_PLAYED_UPDATE', (data) => {
     cardElement.textContent = `(${data.playerId === myId ? 'Você' : 'Oponente'}) jogou: ${data.card.rank} de ${data.card.suit}`;
     tableCardsDiv.appendChild(cardElement);
 
-    const isMyTurn = data.nextTurn === myId;
-    
+    if (data.playerId === myId) {
+        const cardButtons = playerHandDiv.querySelectorAll('.card-btn');
+        cardButtons.forEach(btn => {
+            if (btn.dataset.rank === data.card.rank && btn.dataset.suit === data.card.suit) {
+                btn.remove();
+            }
+        });
+    }
+
+    if (data.nextTurn !== 'processing') {
+        const isMyTurn = data.nextTurn === myId;
+        const cardButtons = playerHandDiv.querySelectorAll('.card-btn');
+        cardButtons.forEach(btn => {
+            btn.disabled = !isMyTurn;
+        });
+
+        if (isMyTurn) {
+            addMessage('É sua vez de jogar!', 'game-info');
+        } else {
+            addMessage('Aguarde a jogada do oponente.', 'server-info');
+        }
+    }
+});
+
+socket.on('ROUND_ENDED', (data) => {
+    const { roundWinnerId, nextTurn } = data;
+
+    if (roundWinnerId === 'tie') {
+        addMessage('Rodada empatada!', 'server-info');
+    } else if (roundWinnerId === myId) {
+        addMessage('Você ganhou esta rodada!', 'game-start');
+    } else {
+        addMessage('Oponente ganhou esta rodada.', 'error');
+    }
+
+    tableCardsDiv.innerHTML = '';
+
+    const isMyTurn = nextTurn === myId;
     const cardButtons = playerHandDiv.querySelectorAll('.card-btn');
     cardButtons.forEach(btn => {
-        if (data.playerId === myId && btn.dataset.rank === data.card.rank && btn.dataset.suit === data.card.suit) {
-            btn.remove();
-        } else {
-            btn.disabled = !isMyTurn;
-        }
+        btn.disabled = !isMyTurn;
     });
+
+    if (isMyTurn) {
+        addMessage('É sua vez de jogar (próxima rodada)!', 'game-info');
+    } else {
+        addMessage('Aguarde o oponente (próxima rodada).', 'server-info');
+    }
+});
+
+socket.on('HAND_ENDED', (data) => {
+    const { handWinnerId } = data;
+
+    if (handWinnerId === 'tie') {
+        addMessage('--- MÃO EMPATADA! (3 empates) ---', 'server-info');
+    } else if (handWinnerId === myId) {
+        addMessage('+++ VOCÊ GANHOU A MÃO! +++', 'game-start');
+    } else {
+        addMessage('--- Oponente ganhou a mão. ---', 'error');
+    }
+    
+    const myNewHandData = data[myId];
+    addMessage('--- Iniciando nova mão... ---', 'server-info');
+    
+    tableCardsDiv.innerHTML = '';
+    
+    addMessage(`A VIRA é: ${myNewHandData.newVira.rank} de ${myNewHandData.newVira.suit}`, 'game-info');
+    
+    const isMyTurn = myNewHandData.newTurn === myId;
+    renderHand(myNewHandData.newHand, isMyTurn);
 
     if (isMyTurn) {
         addMessage('É sua vez de jogar!', 'game-info');

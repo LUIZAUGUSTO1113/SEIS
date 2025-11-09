@@ -86,27 +86,74 @@ io.on('connection', (socket) => {
 
         const playerState = gameState.players.find(p => p.id === socket.id);
         const cardIndex = playerState.hand.findIndex(c => c.rank === card.rank && c.suit === card.suit);
-
         if (cardIndex === -1) {
             socket.emit('INVALID_MOVE', { message: 'Você não tem essa carta!' });
             return;
         }
 
         const playedCard = playerState.hand.splice(cardIndex, 1)[0];
-
         gameState.currentRoundCards.push({
             playerId: socket.id,
             card: playedCard
         });
 
-        const opponent = gameState.players.find(p => p.id !== socket.id);
-        gameState.turn = opponent.id;
+        if (gameState.currentRoundCards.length === 1) {
+            const opponent = gameState.players.find(p => p.id !== socket.id);
+            gameState.turn = opponent.id;
 
-        io.to(roomId).emit('CARD_PLAYED_UPDATE', {
-            playerId: socket.id,
-            card: playedCard,
-            nextTurn: gameState.turn
-        });
+            io.to(roomId).emit('CARD_PLAYED_UPDATE', {
+                playerId: socket.id,
+                card: playedCard,
+                nextTurn: gameState.turn
+            });
+        } else if (gameState.currentRoundCards.length === 2) {
+            io.to(roomId).emit('CARD_PLAYED_UPDATE', {
+                playerId: socket.id,
+                card: playedCard,
+                nextTurn: 'processing'
+            });
+
+            const card1 = gameState.currentRoundCards[0];
+            const card2 = gameState.currentRoundCards[1];
+            const roundWinnerId = gameLogic.determineRoundWinner(card1, card2, gameState.manilhaRank);
+
+            gameState.roundWinners.push(roundWinnerId);
+            gameState.currentHand++;
+
+            let nextTurnPlayer = (roundWinnerId === 'tie') ? card1.playerId : roundWinnerId;
+            gameState.turn = nextTurnPlayer;
+            const handWinner = gameLogic.checkHandWinner(gameState.roundWinners);
+            setTimeout(() => {
+                if (handWinner) {
+                    console.log(`Mão ${roomId} acabada. Vencedor: ${handWinner}`);
+                     
+                    const { hand1, hand2, vira, manilhaRank } = gameLogic.startNewHand();
+                    const player1 = gameState.players[0];
+                    const player2 = gameState.players[1];
+                    player1.hand = hand1;
+                    player2.hand = hand2;
+                    gameState.vira = vira;
+                    gameState.manilhaRank = manilhaRank;
+                    gameState.currentHand = 1;
+                    gameState.currentRoundCards = [];
+                    gameState.roundWinners = [];
+                    // TODO: Trocar quem começa (turn) e quem é o dealer
+                    gameState.turn = player2.id;
+
+                    io.to(roomId).emit('HAND_ENDED', {
+                        handWinnerId: handWinner,
+                        [player1.id]: { newHand: hand1, newVira: vira, newTurn: gameState.turn },
+                        [player2.id]: { newHand: hand2, newVira: vira, newTurn: gameState.turn },
+                    });
+                } else {
+                    gameState.currentRoundCards = [];
+                    io.to(roomId).emit('ROUND_ENDED', {
+                        roundWinnerId: roundWinnerId,
+                        nextTurn: gameState.turn
+                    });
+                }
+            }, 2000);
+        }
     });
 
     socket.on('disconnect', () => {

@@ -68,7 +68,43 @@ function getCardStrength(card, manilhaRank) {
     return RANKS_STRENGTH[card.rank];
 }
 
+function determineRoundWinner(playedCard1, playedCard2, manilhaRank) {
+  const strength1 = getCardStrength(playedCard1.card, manilhaRank);
+  const strength2 = getCardStrength(playedCard2.card, manilhaRank);
+
+  if (strength1 > strength2) {
+    return playedCard1.playerId;
+  }
+  if (strength2 > strength1) {
+    return playedCard2.playerId;
+  }
+  return 'tie';
+}
+
+function checkHandWinner(roundWinners) {
+    if (roundWinners.length === 0) return null;
+    const r1 = roundWinners[0];
+    const r2 = roundWinners[1];
+    const r3 = roundWinners[2];
+
+    if (r1 !== 'tie' && r1 === r2) return r1;
+    if (r1 === 'tie' && r2 !== 'tie') return r2;
+    if (r2 === 'tie' && r1 !== 'tie') return r1;
+    if (roundWinners.length === 3) {
+        if (r1 === 'tie' && r2 === 'tie') return r3;
+
+        const p1Wins = roundWinners.filter(w => w === r1).length;
+        const p2Wins = roundWinners.filter(w => w === r2).length;
+        if (p1Wins >= 2) return r1;
+        if (p2Wins >= 2) return r2;
+        if (r3 !== 'tie') return r3;
+    }
+    return null;
+}
+
 module.exports = {
     startNewHand,
-    getCardStrength
+    getCardStrength,
+    determineRoundWinner,
+    checkHandWinner
 };
