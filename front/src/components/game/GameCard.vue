@@ -1,15 +1,22 @@
 <template>
-    <div class="game-card" @click="handlePlayCard">
+    <div
+        class="game-card"
+        @click="handlePlayCard"
+        @mouseenter="isHovered = true"
+        @mouseleave="isHovered = false"
+    >
         <span class="card-rank">{{ rank }}</span>
         <component :is="suitIcon" class="card-suit" />
     </div>
 </template>
 
 <script setup>
+import { computed, ref, watch } from 'vue';
+import { useAudio } from '@/composables/useAudio';
 import { useGameStore } from '@/stores/gameStore';
-import { computed } from 'vue';
 
 const gameStore = useGameStore();
+const { hoverSound, playCardSound } = useAudio();
 
 const props = defineProps({
     rank: {
@@ -30,6 +37,8 @@ const props = defineProps({
     },
 });
 
+const isHovered = ref(false);
+
 const cardAngle = computed(() => `${props.angle}deg`);
 const translateY = computed(() => (props.angle === 0 ? '0' : '10px'));
 
@@ -44,8 +53,15 @@ const cursorType = computed(() => {
 const handlePlayCard = () => {
     if (gameStore.isPlayersTurn) {
         gameStore.playCard(props.rank, props.suit);
+        playCardSound.play();
     }
 };
+
+watch(isHovered, (newVal) => {
+    if (newVal) {
+        hoverSound.play();
+    }
+});
 </script>
 
 <style>
