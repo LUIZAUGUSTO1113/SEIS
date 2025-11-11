@@ -93,7 +93,10 @@
                 <div
                     v-for="tableCard in gameStore.tableCards"
                     :key="`table-${tableCard.playerId}`"
-                    :class="{ 'my-card': tableCard.playerId === gameStore.myId }"
+                    :class="{
+                        'my-card': tableCard.playerId === gameStore.myId,
+                        'opponent-card': tableCard.playerId !== gameStore.myId,
+                    }"
                     class="table-card"
                 >
                     <GameCard
@@ -492,10 +495,15 @@ const handleCallTruco = () => {
 
 .table-card {
     transform: scale(0.8);
+    position: absolute;
 }
 
 .table-card.my-card {
-    margin-bottom: 20px;
+    transform: scale(0.8) translate(-65px, 80px);
+}
+
+.table-card.opponent-card {
+    transform: scale(0.8) translate(-65px, -270px);
 }
 
 .player-cards {
