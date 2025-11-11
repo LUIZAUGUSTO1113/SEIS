@@ -52,7 +52,11 @@ const cursorType = computed(() => {
 
 const handlePlayCard = () => {
     if (gameStore.isPlayersTurn) {
-        gameStore.playCard(props.rank, props.suit);
+        const card = {
+            rank: props.rank,
+            suit: props.suit,
+        };
+        gameStore.playCard(card);
         playCardSound.play();
     }
 };

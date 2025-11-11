@@ -8,6 +8,7 @@ export const useSocketStore = defineStore('socket', () => {
     const error = ref(null);
     const reconnectAttempts = ref(0);
     const maxReconnectAttempts = ref(5);
+    const gameStore = ref(null);
 
     const isConnected = computed(() => connected.value);
     const hasError = computed(() => error.value !== null);
@@ -33,6 +34,7 @@ export const useSocketStore = defineStore('socket', () => {
             });
 
             setupEventListeners();
+            setupGameEventListeners();
         } catch (err) {
             error.value = err.message;
             console.error('Socket initialization error:', err);
@@ -90,6 +92,58 @@ export const useSocketStore = defineStore('socket', () => {
         });
     };
 
+    const setupGameEventListeners = () => {
+        if (!socket.value) return;
+
+        socket.value.on('WAITING_FOR_OPPONENT', () => {
+            gameStore.value?.setWaitingState();
+        });
+
+        socket.value.on('GAME_STARTED', (data) => {
+            gameStore.value?.initializeGame(data);
+        });
+
+        socket.value.on('CARD_PLAYED_UPDATE', (data) => {
+            gameStore.value?.updateCardPlayed(data);
+        });
+
+        socket.value.on('ROUND_ENDED', (data) => {
+            gameStore.value?.updateRoundEnd(data);
+        });
+
+        socket.value.on('HAND_ENDED', (data) => {
+            gameStore.value?.updateHandAfterEnd(data);
+        });
+
+        socket.value.on('TRUCO_CHALLENGE', (data) => {
+            gameStore.value?.handleTrucoChallenge(data);
+        });
+
+        socket.value.on('CHALLENGE_ACCEPTED', (data) => {
+            gameStore.value?.handleChallengeAccepted(data);
+        });
+
+        socket.value.on('GAME_OVER', (data) => {
+            gameStore.value?.endGame(data);
+        });
+
+        socket.value.on('OPPONENT_DISCONNECTED', () => {
+            gameStore.value?.setOpponentDisconnected();
+        });
+
+        socket.value.on('INVALID_MOVE', (data) => {
+            gameStore.value?.setInvalidMove(data);
+        });
+    };
+
+    const setGameStore = (store) => {
+        gameStore.value = store;
+    };
+
+    const findGame = () => {
+        return emit('FIND_GAME');
+    };
+
     const emit = (event, data) => {
         if (socket.value && connected.value) {
             socket.value.emit(event, data);
@@ -140,6 +194,8 @@ export const useSocketStore = defineStore('socket', () => {
 
         connect,
         disconnect,
+        setGameStore,
+        findGame,
         emit,
         on,
         off,
