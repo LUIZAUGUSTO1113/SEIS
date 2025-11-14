@@ -1,4 +1,3 @@
-```
 # SEIS - Jogo de Truco (Projeto de S.O.)
 
 ## Sobre o Projeto
@@ -107,4 +106,3 @@ Você precisará do [Node.js](https://nodejs.org/) (v18 ou superior) instalado.
 - Luiz Augusto - Back-end & Lógica do Jogo - [GitHub](https://www.google.com/search?q=https://github.com/seu-usuario)
 - Matheus Polizelli - Front-end & UI/UX - [GitHub](https://www.google.com/search?q=https://github.com/usuario-dele)
 - Rafael Blasques - Documentação - [Github](https://github.com/Rafaelmorales14)
-```
