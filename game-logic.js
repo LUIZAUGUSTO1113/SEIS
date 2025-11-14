@@ -93,11 +93,21 @@ function checkHandWinner(roundWinners) {
     if (roundWinners.length === 3) {
         if (r1 === 'tie' && r2 === 'tie') return r3;
 
-        const p1Wins = roundWinners.filter(w => w === r1).length;
-        const p2Wins = roundWinners.filter(w => w === r2).length;
-        if (p1Wins >= 2) return r1;
-        if (p2Wins >= 2) return r2;
-        if (r3 !== 'tie') return r3;
+        const player1_id = roundWinners.find(id => id !== 'tie');
+
+        if (!player1_id) return 'tie'; 
+
+        const p1Wins = roundWinners.filter(w => w === player1_id).length;
+        if (p1Wins >= 2) return player1_id;
+
+        const player2_id = roundWinners.find(id => id !== 'tie' && id !== player1_id);
+        
+        if (player2_id) {
+            const p2Wins = roundWinners.filter(w => w === player2_id).length;
+            if (p2Wins >= 2) return player2_id;
+        }
+        
+    return 'tie';
     }
     return null;
 }
