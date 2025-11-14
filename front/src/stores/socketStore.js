@@ -18,7 +18,7 @@ export const useSocketStore = defineStore('socket', () => {
         return 'disconnected';
     });
 
-    const connect = (url = 'http://localhost:3000') => {
+    const connect = (url) => {
         if (socket.value) {
             disconnect();
         }

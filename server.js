@@ -1,19 +1,33 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const path = require('path');
+const cors = require('cors');
 
 const gameLogic = require('./game-logic');
 
 const app = express();
+app.use(cors({
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173']
+}));
+
 const httpServer = http.createServer(app);
-const io = new Server(httpServer);
+const io = new Server(httpServer, {
+    cors: {
+        origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+        methods: ['GET', 'POST']
+    }
+});
 
 const PORT = 3000;
 
 const gameRooms = new Map();
 let waitingPlayer = null;
 
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'front/dist')));
+app.get('/*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'front/dist', 'index.html'));
+});
 
 io.on('connection', (socket) => {
     console.log(`Cliente conectado: ${socket.id}`)

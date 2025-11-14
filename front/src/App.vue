@@ -24,7 +24,8 @@ const handleFirstClick = () => {
 };
 
 onMounted(() => {
-    socketStore.connect('http://localhost:3000');
+    const socketURL = import.meta.env.DEV ? 'http://localhost:3000' : '/';
+    socketStore.connect(socketURL);
     document.addEventListener('click', handleFirstClick);
 });
 
