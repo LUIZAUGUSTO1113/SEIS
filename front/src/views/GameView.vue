@@ -18,7 +18,7 @@
 
         <div v-else-if="gameStore.gameState === 'ended'" class="game-status">
             <h2>{{ gameStore.gameMessage }}</h2>
-            <p>Placar Final: {{ gameStore.myScore }} x {{ gameStore.opponentScore }}</p>
+            <p class="final-score">Placar Final: {{ getFinalScore() }}</p>
             <button @click="startGame">Jogar Novamente</button>
         </div>
 
@@ -166,7 +166,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useGame } from '@/composables/useGame';
 import { useAudio } from '@/composables/useAudio';
 
@@ -180,7 +180,24 @@ import SpadesIcon from '@/components/cards-suits/SpadesIcon.vue';
 
 const { gameStore, socketStore, startGame, callTruco, respondToTruco } = useGame();
 const { trucoScreamSound } = useAudio();
+console.log(gameStore.gameState);
+watch(
+    () => gameStore.gameState,
+    (newState) => {
+        console.log('Game state changed to:', newState);
+        console.log('Myscore:', gameStore.myScore);
+        console.log('Opponent score:', gameStore.opponentScore);
+    },
+);
 
+watch(
+    () => gameStore.myScore,
+    (newState) => {
+        console.log('Game state changed to:', newState);
+        console.log('Myscore:', gameStore.myScore);
+        console.log('Opponent score:', gameStore.opponentScore);
+    },
+);
 const SUIT_ICONS = {
     Hearts: HeartsIcon,
     Diamonds: DiamondsIcon,
@@ -277,6 +294,16 @@ const handleCallTruco = () => {
     trucoScreamSound.play();
     callTruco();
 };
+
+const getFinalScore = () => {
+    const iWon = gameStore.gameMessage === 'Você ganhou!';
+
+    if (iWon) {
+        return `12 x ${gameStore.opponentScore}`;
+    } else {
+        return `${gameStore.myScore} x 12`;
+    }
+};
 </script>
 
 <style scoped>
@@ -320,6 +347,11 @@ const handleCallTruco = () => {
 .game-status button:disabled {
     background: #666;
     cursor: not-allowed;
+}
+
+.final-score {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
 }
 
 .scoreboard-container {
