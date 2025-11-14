@@ -11,7 +11,7 @@ import dozeScream from '@/assets/sounds/doze-sfx.mp3';
 import jogueScream from '@/assets/sounds/jogue-sfx.mp3';
 
 export function useAudio() {
-    const ambientSound = useSound(ambientSfx, { volume: 0.2, playbackRate: 1 });
+    const ambientSound = useSound(ambientSfx, { volume: 0.2, playbackRate: 1, loop: true });
 
     const hoverSound = useSound(hoverCardSfx, { volume: 0.5, playbackRate: 3 });
     const playCardSound = useSound(playCardSfx, { volume: 0.7, playbackRate: 1.5 });

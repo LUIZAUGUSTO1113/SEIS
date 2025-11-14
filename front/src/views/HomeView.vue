@@ -7,14 +7,11 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { useAudio } from '@/composables/useAudio';
 
 const router = useRouter();
-const { ambientSound } = useAudio();
 
 const goToGame = () => {
     router.push('/game');
-    ambientSound.play();
 };
 </script>
 
