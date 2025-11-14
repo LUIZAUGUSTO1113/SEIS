@@ -42,6 +42,7 @@ export const useGameStore = defineStore('game', () => {
     const stake = computed(() => handValue.value);
     const canCallTruco = computed(() => {
         return (
+            isPlayersTurn.value &&
             isGameActive.value &&
             !pendingChallenge.value &&
             myScore.value !== 11 &&

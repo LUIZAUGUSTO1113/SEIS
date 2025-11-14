@@ -250,10 +250,6 @@ socket.on('TRUCO_CHALLENGE', (data) => {
 socket.on('CHALLENGE_ACCEPTED', (data) => {
     addMessage(`Desafio ACEITO! Mão valendo ${data.value} pontos.`, 'game-start');
     showActionButtons('NONE');
-    
-    if (data.acceptedBy === myId) {
-        showActionButtons('CAN_TRUCO'); 
-    }
 });
 
 socket.on('GAME_OVER', (data) => {

@@ -48,7 +48,8 @@ io.on('connection', (socket) => {
                 roundWinners: [],
                 handValue: 1,
                 pendingChallenge: null,
-                handStarter: player1.id
+                handStarter: player1.id,
+                lastBettor: null
             };
             gameRooms.set(roomId, gameState);
 
@@ -189,6 +190,7 @@ io.on('connection', (socket) => {
                     }
                     gameState.handValue = newHandValue;
                     gameState.pendingChallenge = null;
+                    gameState.lastBettor = null;
 
                     io.to(player1State.id).emit('HAND_ENDED', {
                         handWinnerId: handWinner,
@@ -238,15 +240,30 @@ io.on('connection', (socket) => {
             return;
         }
 
-        const currentLevel = (gameState.handValue === 1) ? 0 : TRUCO_LEVELS.findIndex(l => l.value === gameState.handValue);
-        const nextLevel = TRUCO_LEVELS[currentLevel];
+        if (gameState.turn !== socket.id) {
+            socket.emit('INVALID_MOVE', { message: 'Não é sua vez de pedir truco!' });
+            return;
+        }
 
+        if (gameState.lastBettor === socket.id) {
+            socket.emit('INVALID_MOVE', { message: 'Você não pode aumentar sua própria aposta!' });
+            return;
+        }
+
+        const currentLevelIndex = TRUCO_LEVELS.findIndex(l => l.value === gameState.handValue);
+        const nextLevelIndex = currentLevelIndex + 1;
+        if (nextLevelIndex >= TRUCO_LEVELS.length) {
+            socket.emit('INVALID_MOVE', { message: 'Não pode aumentar, já está em 12!' });
+            return;
+        }
+
+        const nextLevel = TRUCO_LEVELS[nextLevelIndex];
         const opponent = gameState.players.find(p => p.id !== socket.id);
         
         gameState.pendingChallenge = {
             from: socket.id,
             to: opponent.id,
-            levelIndex: currentLevel,
+            levelIndex: nextLevelIndex,
             value: nextLevel.value,
             valueOnRun: nextLevel.valueOnRun,
             raiseText: nextLevel.raiseText
@@ -278,6 +295,7 @@ io.on('connection', (socket) => {
 
         } else if (response === 'ACCEPT') {
             gameState.handValue = challenge.value;
+            gameState.lastBettor = challenge.from;
             gameState.pendingChallenge = null;
 
             io.to(gameState.roomId).emit('CHALLENGE_ACCEPTED', {
@@ -356,6 +374,7 @@ function startNewHandAfterRun(roomId, handWinnerId) {
     }
     gameState.handValue = newHandValue;
     gameState.pendingChallenge = null;
+    gameState.lastBettor = null;
 
     io.to(player1State.id).emit('HAND_ENDED', {
         handWinnerId: handWinnerId,

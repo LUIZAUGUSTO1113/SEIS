@@ -127,8 +127,7 @@
                 <button
                     @click="handleCallTruco"
                     class="truco-button"
-                    :disabled="!gameStore.canCallTruco"
-                    v-if="!gameStore.pendingChallenge"
+                    v-if="gameStore.canCallTruco" 
                 >
                     Truco!
                 </button>
