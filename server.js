@@ -47,7 +47,8 @@ io.on('connection', (socket) => {
                 currentRoundCards: [],
                 roundWinners: [],
                 handValue: 1,
-                pendingChallenge: null
+                pendingChallenge: null,
+                handStarter: player1.id
             };
             gameRooms.set(roomId, gameState);
 
@@ -162,7 +163,20 @@ io.on('connection', (socket) => {
                     gameState.currentHand = 1;
                     gameState.currentRoundCards = [];
                     gameState.roundWinners = [];
-                    gameState.turn = player2State.id;
+
+                    const p1id = gameState.players[0].id;
+                    const p2id = gameState.players[1].id;
+                    let nextTurnId;
+
+                    if (handWinner !== 'tie') {
+                        nextTurnId = handWinner;
+                    } else {
+                        const lastHandStarterId = gameState.handStarter;
+                        nextTurnId = (lastHandStarterId === p1id) ? p2id : p1id;
+                    }
+
+                    gameState.turn = nextTurnId;
+                    gameState.handStarter = nextTurnId;
 
                     let newHandValue = 1;
                     let specialHand = null;
@@ -330,7 +344,8 @@ function startNewHandAfterRun(roomId, handWinnerId) {
     gameState.currentHand = 1;
     gameState.currentRoundCards = [];
     gameState.roundWinners = [];
-    gameState.turn = player2State.id;
+    gameState.turn = handWinnerId;
+    gameState.handStarter = handWinnerId;
     
     let newHandValue = 1;
     let specialHand = null;
