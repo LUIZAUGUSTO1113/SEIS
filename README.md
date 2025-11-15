@@ -69,7 +69,7 @@ Você precisará do [Node.js](https://nodejs.org/) (v18 ou superior) instalado.
 1. **Clone o repositório:**
     
     ```
-    git clone https://github.com/seu-usuario/seu-repositorio.git
+    git clone https://github.com/LUIZAUGUSTO1113/SEIS.git
     cd seu-repositorio
     ```
     

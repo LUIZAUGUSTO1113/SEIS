@@ -1,5 +1,3 @@
-nome do arquivo: api-websocket
-
 # Documentação da API WebSocket - SEIS
 
 Olá! Este documento descreve todos os eventos WebSocket que o servidor (back-end) e o cliente (front-end) trocam para fazer o jogo de truco funcionar.
